@@ -1,8 +1,68 @@
 "use strict";
 
+function BaseException() {
+}
+BaseException.prototype = new Error();
+BaseException.prototype.constructor = BaseException;
+
+BaseException.prototype.toString = function(){
+	return this.name + ": " + this.message;
+};
+
+function listFullException() {
+	this.name = "ListFullException";
+	this.message = "Error. The list is full.";
+}
+listFullException.prototype = new BaseException();
+listFullException.prototype.constructor = listFullException;
+
+function listEmptyException() {
+	this.name = "ListEmptyException";
+	this.message = "Error. The list is empty.";
+}
+listEmptyException.prototype = new BaseException();
+listEmptyException.prototype.constructor = listEmptyException;
+
+function objectNotPerson() {
+	this.name = "ObjectNotPerson";
+	this.message = "Error. The object is not a person.";
+}
+objectNotPerson.prototype = new BaseException();
+objectNotPerson.prototype.constructor = objectNotPerson;
+
+function personPropertyEmpty() {
+	this.name = "PersonPropertyEmpty";
+	this.message = "Error. Name or surname is null.";
+}
+personPropertyEmpty.prototype = new BaseException();
+personPropertyEmpty.prototype.constructor = personPropertyEmpty;
+
+function indexOutLimit() {
+	this.name = "IndexOutLimit";
+	this.message = "The index is out of the limits of the list.";
+}
+indexOutLimit.prototype = new BaseException();
+indexOutLimit.prototype.constructor = indexOutLimit;
+
+function indexEmptyBefore() {
+	this.name = "IndexEmptyBefore";
+	this.message = "Error. The list has empty indexes before.";
+}
+indexEmptyBefore.prototype = new BaseException();
+indexEmptyBefore.prototype.constructor = indexEmptyBefore;
+
+
+
+function Person(name, surname){
+    this.name = name;
+    this.surname = surname;
+}
+Person.prototype = {}; 
+Person.prototype.constructor = Person;
+
 function listPerson(){
-    var list = []; 
-        
+    var list = [];
+    
     this.capacity = function(){
         return 4;
     }    
@@ -30,9 +90,9 @@ function listPerson(){
     this.add = function(person){
 
         if (this.isFull()){
-            return "Error. The list is full."
+            throw new listFullException();
         }
-
+        
         this.errorsPerson(person);
 
         return list.push(person);
@@ -41,16 +101,16 @@ function listPerson(){
     this.addAt = function(person, index){
     
         if (this.isFull()){
-            return "Error. The list is full."
+            throw new listFullException();
         }
 
         if ( index < 0 || index > this.capacity()){
-            return "The index is out of the limits of the list";
+            throw new indexOutLimit();
         }
 
         for (var i=0; i<index; i++){
             if ( list[i] == null ){
-                return "Error. The list has empty indexes before.";
+                throw new indexEmptyBefore();
             }
         }
 
@@ -70,21 +130,11 @@ function listPerson(){
         return aux;
     },
     
-    this.errorsPerson = function(person){
-    
-        if ( typeof person != person ){
-            return "Error. The object is not a person."
-        }
-
-        if (person.name == null || person.surname == null){
-            return "Error. Name or surname is null."
-        }
-    },
     
     this.get = function(index){
     
         if ( index < 0 || index > this.capacity()){
-            return "The index is out of the limits of the list";
+           throw new indexOutLimit();
         }
     
         return list[index];
@@ -111,7 +161,7 @@ function listPerson(){
     this.firstElement = function(){
 
         if (this.isEmpty()){
-            return "Error. The list is empty."
+            throw new listEmptyException();
         }
 
         return list[0];
@@ -120,7 +170,7 @@ function listPerson(){
     this.lastElement = function(){
     
         if (this.isEmpty()){
-            return "Error. The list is empty."
+            throw new listEmptyException();
         }
 
         return list[this.size()-1];
@@ -129,47 +179,62 @@ function listPerson(){
     this.remove = function(index){
     
         if (this.isEmpty()){
-            return "Error. The list is empty."
+            throw new listEmptyException();
         }
-
-        this.errorsPerson();
 
         return list.splice(index, 1);
     },
     
-    this.removeElement = function(elem){
+    this.removeElement = function(person){
 
-        if (this.isEmpty(list)){
-            return "Error. The list is empty.";
+        if (this.isEmpty()){
+            throw new listEmptyException();
         }
+        
+        this.errorsPerson(person);
 
-        return list.splice(list.indexOf(elem), 1);   
+        return list.splice(list.indexOf(person), 1);   
     },
     
-    this.set = function(elem, index){
+    this.set = function(person, index){
         var aux;
 
         if ( index < 0 || index > this.capacity()){
-            return "The index is out of the limits of the list";
+            throw new indexOutLimit();
         }
         
-        this.errorsPerson();
+        this.errorsPerson(person);
 
         aux = list[index];
-        list[index] = elem
+        list[index] = person;
 
         return aux;
+    }
+    
+    
+    this.errorsPerson = function(person){ 
+
+        if (!(person instanceof Person)) {
+           throw new objectNotPerson();
+        }
+
+        if (person.name == null || person.surname == null){
+            throw new personPropertyEmpty();
+        }
     }
 }
 
 
+
+
 function testConsole(){
     var list = new listPerson();
-    var person1 = {name:"1", surname:"1.1"};
-    var person2 = {name:"2", surname:"2.1"};
-    var person3 = {name:"3", surname:"3.1"};
     
-     console.log("Capacidad: "+list.capacity());
+    var person1 = new Person(1, 1.2);
+    var person2 = new Person(2, 2.2);
+    var person3 = new Person(1, 3.2);
+    
+    console.log("Capacidad: "+list.capacity());
     console.log("¿Lista vacia? "+list.isEmpty());
     console.log("¿Lista llena? "+list.isFull());
     console.log("Numero de elementos: "+list.size());
