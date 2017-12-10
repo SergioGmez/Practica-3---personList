@@ -230,9 +230,9 @@ function listPerson(){
 function testConsole(){
     var list = new listPerson();
     
-    var person1 = new Person(1, 1.2);
-    var person2 = new Person(2, 2.2);
-    var person3 = new Person(1, 3.2);
+    var person1 = new Person("Pepe", "Martin Heredia");
+    var person2 = new Person("Juan", "Lopez Vazquez");
+    var person3 = new Person("Julia", "Diaz Alvarez");
     
     console.log("Capacidad: "+list.capacity());
     console.log("¿Lista vacia? "+list.isEmpty());
